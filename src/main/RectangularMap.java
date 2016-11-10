@@ -19,7 +19,7 @@ public class RectangularMap implements IWorldMap {
 	
 	@Override
 	public boolean canMoveTo(Position position) {
-		return position.isSmaller(new Position(Width, Height)) && position.isLarger(new Position(0,0));
+		return position.isSmaller(new Position(Width, Height)) && position.isLarger(new Position(0,0)) && !isOccupied(position);
 	}
 
 	@Override

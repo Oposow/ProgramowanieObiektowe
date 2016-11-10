@@ -2,6 +2,13 @@ package main;
 
 public class UnboundedMap implements IWorldMap {
 
+	public int 
+	
+	public UnboundedMap(int HayStackNum)
+	{
+		
+	}
+	
 	@Override
 	public boolean canMoveTo(Position position) {
 		// TODO Auto-generated method stub

@@ -1,5 +1,5 @@
 package main;
 
 public interface IPositionChangeListener {
-	positionChanged(Position old, Position newPosition)
+	void positionChanged(Position old, Position newPosition)
 }

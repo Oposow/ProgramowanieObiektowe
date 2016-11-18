@@ -1,19 +1,31 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javafx.util.Pair;
 
 public class UnboundedMap implements IWorldMap {
 
-	public List<Car> Cars;
-	public List<HayStack> HayStacks;
+	public List<Car> cars;
+	public HashMap<Position, Object> objectsOnMap;
+	Position leftDown;
+	Position rightUp;
 	
 	public UnboundedMap(List<HayStack> _HayStacks)
 	{
-		HayStacks = _HayStacks;
-		Cars = new ArrayList<Car>();
+		leftDown = new Position(0,0);
+		rightUp = new Position(0,0);
+		objectsOnMap = new HashMap<Position, Object>();
+		for (HayStack stack : _HayStacks)
+		{
+			objectsOnMap.put(stack.getPosition(), stack);
+			if (stack.getPosition().isLarger(rightUp))
+				rightUp = stack.getPosition();
+			else if (stack.getPosition().isSmaller(leftDown))
+				leftDown = stack.getPosition();
+		}
 	}
 	
 	@Override
@@ -24,57 +36,40 @@ public class UnboundedMap implements IWorldMap {
 	@Override
 	public boolean add(Car car) {
 		if (isOccupied(car.getPosition()))
-			return false;
-		Cars.add(car);
+			throw new IllegalArgumentException(car.getPosition() + " Is already occupied");
+		objectsOnMap.put(car.getPosition(), car);
+		cars.add(car);
+		if (car.getPosition().isLarger(rightUp))
+			rightUp = car.getPosition();
+		else if (car.getPosition().isSmaller(leftDown))
+			leftDown = car.getPosition();
 		return true;
 	}
 
 	@Override
 	public void run(MoveDirection[] directions) {
 		for(int i = 0; i<directions.length; i++)
-			Cars.get(i%Cars.size()).move(directions[i]);
+		{
+			objectsOnMap.remove(cars.get(i%cars.size()).getPosition());
+			cars.get(i%cars.size()).move(directions[i]);
+			objectsOnMap.put(cars.get(i%cars.size()).getPosition(), cars.get(i%cars.size()));
+		}
 	}
 
 	@Override
 	public boolean isOccupied(Position position) {
-		for(Car car : Cars)
-			if (car.getPosition().equals(position))
-				return true;
-		for(HayStack stack : HayStacks)
-			if (stack.getPosition().equals(position))
-				return true;
+		if (objectsOnMap.containsKey(position))
+			return true;
 		return false;
 	}
 
 	@Override
 	public Object objectAt(Position position) {
-		for(Car car : Cars)
-			if (car.getPosition().equals(position))
-				return car;
-		for(HayStack stack : HayStacks)
-			if (stack.getPosition().equals(position))
-				return stack;
-		return null;
+		return objectsOnMap.get(position);
 	}
 	
 	private Pair<Position, Position> getCorners()
 	{
-		Position leftDown = new Position(0,0);
-		Position rightUp = new Position(0,0);
-		for(Car car : Cars)
-		{
-			if (car.getPosition().isSmaller(leftDown))
-				leftDown = car.getPosition();
-			if (car.getPosition().isLarger(rightUp))
-				rightUp = car.getPosition();			
-		}
-		for(HayStack stack : HayStacks)
-		{
-			if (stack.getPosition().isSmaller(leftDown))
-				leftDown = stack.getPosition();
-			if (stack.getPosition().isLarger(rightUp))
-				rightUp = stack.getPosition();
-		}
 		return new Pair<>(leftDown, rightUp);
 	}
 	

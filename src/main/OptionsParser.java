@@ -24,6 +24,9 @@ public class OptionsParser {
 					break;
 				case 'r':
 					dirs.add(MoveDirection.Right);
+					break;
+				default:
+					throw new IllegalArgumentException(arr[i] + " is not legal move specification");
 			}
 		return dirs;
 	}

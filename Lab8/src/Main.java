@@ -1,7 +1,9 @@
 import Consts.PartType;
+import Models.ArgumentsModel;
 import Models.ConstitutionModel;
+import Providers.ArgumentsParser;
 import Providers.ConstitutionLoadingProvider;
-import Providers.ConstitutionProvider;
+import Providers.ConstitutionDisplayingProvider;
 
 import javax.naming.NoPermissionException;
 import java.io.IOException;
@@ -16,31 +18,12 @@ public class Main {
     // Trzeci argument - numer części do wyświetlenia
     public static void main(String [] args)
     {
-        ConstitutionProvider _constitutionProvider = new ConstitutionProvider();
+        ConstitutionDisplayingProvider _constitutionDisplayingProvider = new ConstitutionDisplayingProvider();
         ConstitutionLoadingProvider _constitutionLoadingProvider = new ConstitutionLoadingProvider();
         try{
-            if (args.length < 3)
-                throw new NullPointerException();
-            ConstitutionModel constitution = _constitutionLoadingProvider.LoadConstitution(args[0]);
-            PartType type = PartType.values()[Integer.parseInt(args[1])];
-            int fragmentNumber = Integer.parseInt(args[2]);
-
-            if (type == PartType.Chapter)
-                System.out.println(_constitutionProvider.GetChapterAsString(constitution, fragmentNumber));
-            else if (type == PartType.Article)
-            {
-                int rangeEnd = fragmentNumber;
-                if (args.length >3)
-                    rangeEnd = Integer.parseInt(args[3]);
-                for(int i = fragmentNumber; i<=rangeEnd; i++)
-                    System.out.println(_constitutionProvider.GetArticleAsString(constitution, i));
-            }
-            else
-                throw new IllegalArgumentException();
-        }
-        catch(NullPointerException ex)
-        {
-            System.out.println("Podano za mało argumentów");
+            ArgumentsModel arguments = ArgumentsParser.ParseArguments(args);
+            ConstitutionModel constitution = _constitutionLoadingProvider.LoadConstitution(arguments.FilePath);
+            _constitutionDisplayingProvider.DisplayConstitution(constitution, arguments.DisplayingArguments);
         }
         catch(NoPermissionException ex)
         {

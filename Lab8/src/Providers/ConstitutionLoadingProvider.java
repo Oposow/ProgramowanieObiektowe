@@ -34,7 +34,8 @@ public class ConstitutionLoadingProvider
         InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
         BufferedReader br = new BufferedReader(isr);
         while ((line = br.readLine()) != null)
-            lines.add(line.trim());
+            if (IsLineValid(line.trim()))
+                lines.add(line.trim());
 
         ArrayList<String> linesArray = new ArrayList<String>(lines);
         // Ladujemy preambułę
@@ -88,14 +89,10 @@ public class ConstitutionLoadingProvider
 
     private int LoadChapter(ArrayList<String> lines, ConstitutionModel constitution, int startIndex)
     {
-        // Pobieramy pierwszą poprawną linię i zapisujemy ją jako nagłówek rozdziału (np "Rozdział I")
-        while (!IsLineValid(lines.get(startIndex)))
-            startIndex++;
+        // Pobieramy pierwszą  linię i zapisujemy ją jako nagłówek rozdziału (np "Rozdział I")
         ChapterModel chapter = new ChapterModel();
         chapter.Header = lines.get(startIndex++);
-        // Pobieramy drugą poprawną linię i zapisujemy ją jako tytuł rozdziału
-        while (!IsLineValid(lines.get(startIndex)))
-            startIndex++;
+        // Pobieramy drugą linię i zapisujemy ją jako tytuł rozdziału
         chapter.Title = lines.get(startIndex++);
         // Dopóki nie dojdziemy do następnego rozdziału wczytujemy podrozdziały
         while (startIndex != -1
@@ -111,9 +108,7 @@ public class ConstitutionLoadingProvider
     private int LoadSubChapter(ArrayList<String> lines, ChapterModel chapter, int startIndex)
     {
         SubChapterModel sub = new SubChapterModel();
-        while (!IsLineValid(lines.get(startIndex)))
-            startIndex++;
-        // Jeśli pierwsza ważna linia jest napisana wielkimi literami, to zapisujemy ją jako tytuł podrozdziału
+        // Jeśli pierwsza linia jest napisana wielkimi literami, to zapisujemy ją jako tytuł podrozdziału
         if (lines.get(startIndex).toUpperCase() == lines.get(startIndex))
             sub.Title = lines.get(startIndex++);
         // Wczytujemy artykuły dopóki nie dojdziemy do końca podrozdziału
@@ -130,10 +125,7 @@ public class ConstitutionLoadingProvider
     private int LoadArticle(ArrayList<String> lines, SubChapterModel sub, int startIndex)
     {
         ArticleModel article = new ArticleModel();
-        // Pierwszą ważną linię zapisujemy jako nagłówek artykułu (np. Art. 1.)
-        while (!IsLineValid(lines.get(startIndex)))
-            startIndex++;
-
+        // Pierwszą linię zapisujemy jako nagłówek artykułu (np. Art. 1.)
         article.Header = lines.get(startIndex++);
         // Ustawiamy zmienną, dzięki której będziemy wiedzieć, czy nie doszliśmy do kolejnego punktu artykułu
         int currentPoint = 2;
@@ -145,14 +137,6 @@ public class ConstitutionLoadingProvider
                 && lines.get(startIndex).toUpperCase() != lines.get(startIndex)
                 && !lines.get(startIndex).startsWith("Rozdział"))
         {
-            // Jeśli natknęliśmy się na nieważne linie, to należy sprawdzić na nowo warunki początkowe
-            boolean wereBadlines = false;
-            while (!IsLineValid(lines.get(startIndex))) {
-                startIndex++;
-                wereBadlines = true;
-            }
-            if (wereBadlines)
-                continue;
             // Jeśli obecna linia jest podpunktem, to dodajemy znak nowej linii przed nią
             if (lines.get(startIndex).startsWith(Integer.toString(currentSubPoint)+ ") "))
             {
@@ -169,9 +153,11 @@ public class ConstitutionLoadingProvider
                 builder = new StringBuilder();
             }
             builder.append(lines.get(startIndex++));
-            // Usuwamy ewentualny znak przełamania wiersza
+            // Usuwamy ewentualny znak przełamania wiersza, albo dodajemy spację na koniec linii
             if (builder.charAt(builder.length()-1) == '-')
                 builder.deleteCharAt(builder.length()-1);
+            else
+                builder.append(' ');
         }
 
         article.TextPoints.add(builder.toString());

@@ -5,7 +5,6 @@ package Models;
  */
 
 public class ArticleModel {
-    public int ChaptersNumber;
     public String Header;
     public java.util.List<String> TextPoints;
 

@@ -8,9 +8,9 @@ import java.util.LinkedList;
  * Created by Filip i Paulinka on 11.12.2016.
  */
 public interface IWebCommunication {
-    LinkedList<MainEnvoyDataDTO> GetAllEnvoysMainData(int term);
-    MainEnvoyDataDTO GetEnvoyExpenses(int term, int envoyId);
-    LinkedList<MainEnvoyDataDTO> GetAllEnvoysExpenses(int term);
-    LinkedList<MainEnvoyDataDTO> GetAllEnvoysJournes(int term);
+    LinkedList<EnvoyDataDTO> GetAllEnvoysMainData(int term);
+    EnvoyDataDTO FillEnvoyExpenses(int term, EnvoyDataDTO model);
+    LinkedList<EnvoyDataDTO> FillAllEnvoysExpenses(int term);
+    LinkedList<EnvoyDataDTO> FillAllEnvoysJournes(int term);
     int GetEnvoyId(String envoyName);
 }

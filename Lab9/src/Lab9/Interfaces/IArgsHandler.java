@@ -7,5 +7,5 @@ import Lab9.LineArgs;
  */
 public interface IArgsHandler {
     LineArgs ParseLineArgs(String[] args);
-    void ShowChoosenData(LineArgs args);
+    void ShowChoosenData(LineArgs args) throws Exception;
 }
